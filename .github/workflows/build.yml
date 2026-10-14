@@ -1,0 +1,106 @@
+name: Build
+
+on:
+  push:
+    branches: [main, 'codex/**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            platform: darwin-arm64
+          - runner: macos-15-intel
+            platform: darwin-amd64
+          - runner: ubuntu-24.04
+            platform: linux-amd64
+          - runner: ubuntu-24.04-arm
+            platform: linux-arm64
+          - runner: windows-2025
+            platform: windows-amd64
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      CGO_ENABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: MINGW64
+          update: true
+          install: mingw-w64-x86_64-gcc
+      - name: Windows C compiler
+        if: runner.os == 'Windows'
+        run: echo 'C:/msys64/mingw64/bin' >> "$GITHUB_PATH"
+      - name: Check tag and formatting
+        env:
+          RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+        run: |
+          test -z "$(gofmt -l *.go tools/host/*.go)"
+          python -c 'import json,os; t=os.environ["RELEASE_TAG"]; v=json.load(open("plugin.json"))["version"]; assert not t or t == "v"+v, "tag must match plugin.json"'
+      - run: go test -race ./...
+        if: runner.os != 'Windows'
+      - run: go test ./...
+        if: runner.os == 'Windows'
+      - run: go vet ./...
+      - run: python scripts/package.py
+      - name: Load through Godwit
+        run: |
+          cd tools/host
+          go mod download
+          cd ../..
+          python scripts/smoke.py "$(find dist -name 'plugin.dylib' -o -name 'plugin.so' -o -name 'plugin.dll' | head -1)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dlx-${{ matrix.platform }}
+          path: dist/${{ matrix.platform }}/
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - name: Merge registry artifacts
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          fragments = [json.loads(p.read_text()) for p in sorted(Path('dist').glob('*/registry-release.json'))]
+          assert len(fragments) == 5
+          release = fragments[0]
+          for fragment in fragments[1:]:
+              assert fragment['version'] == release['version'] and fragment['manifest'] == release['manifest']
+              release['artifacts'].update(fragment['artifacts'])
+          Path('dist/registry-release.json').write_text(json.dumps(release, indent=2)+'\n')
+          Path('dist/SHA256SUMS').write_text(''.join(p.read_text() for p in sorted(Path('dist').glob('*/SHA256SUMS'))))
+          PY
+      - name: Publish draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$RELEASE_TAG" --draft --verify-tag --title "DLX $RELEASE_TAG" --notes 'Godwit ABI v1 native translation plugin. Unofficial DeepL endpoint; may be rate limited or stop working. See README for privacy and installation.' dist/*/dlx-* dist/SHA256SUMS dist/registry-release.json plugin.json LICENSE THIRD_PARTY_NOTICES

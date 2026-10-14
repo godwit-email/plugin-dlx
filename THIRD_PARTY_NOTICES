@@ -1,0 +1,31 @@
+DLX: https://github.com/OwO-Network/DLX
+Pinned commit: 0f2b50dd69fea3012d95a8d0e7a4ae8dca9ff5b2
+Imported translate package; no upstream HTTP server is started.
+
+MIT License
+
+Copyright (c) 2022 OwO Network Limited
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Godwit C ABI header: sdk/godwit_plugin.h
+Copied unchanged from Godwit PR #68, commit
+0686d91f248302f085e799d13e990c2805348856 (Apache-2.0; see LICENSE).
+
+Build artifacts also contain DEPENDENCY_LICENSES.txt for linked Go modules.

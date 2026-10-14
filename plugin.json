@@ -1,0 +1,11 @@
+{
+  "name": "dlx",
+  "version": "0.1.0",
+  "description": {
+    "default": "Translate with DLX without deploying a server.",
+    "zh-CN": "通过 DLX 翻译，无需自行部署服务。"
+  },
+  "native": { "abi": 1 },
+  "capabilities": ["translate"],
+  "config": []
+}

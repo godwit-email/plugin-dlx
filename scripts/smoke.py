@@ -25,6 +25,8 @@ requests = [
     ("translate", {"texts": ["hello"], "source": "", "target": "xx"}, False),
     ("missing", {}, False),
 ]
+# Concurrent callbacks catch host/plugin runtime and buffer ownership bugs.
+requests *= 8
 if args.live:
     requests.append(("translate", {"texts": ["Hello, world!"], "source": "en", "target": "zh-CN"}, True))
 payload = "".join(json.dumps({"id": index, "method": method, "params": params}) + "\n" for index, (method, params, _) in enumerate(requests, 1))
@@ -45,9 +47,10 @@ for index, ((method, params, ok), response) in enumerate(zip(requests, responses
             assert response["result"]["texts"] == params["texts"], response
         else:
             assert response["result"]["texts"][0] != params["texts"][0], response
-    print(json.dumps(response))
+    if index <= 5 or (args.live and index == len(requests)):
+        print(json.dumps(response))
 denied = subprocess.run([str(host), "--library", str(library), "--sha256", "0" * 64], capture_output=True, encoding="utf-8", timeout=30)
 assert denied.returncode == 3 and "DENIED_BEFORE_DLOPEN" in denied.stderr, denied
 incompatible = subprocess.run([str(host), "--library", str(library), "--sha256", digest, "--abi", "2"], capture_output=True, encoding="utf-8", timeout=30)
 assert incompatible.returncode == 4 and "LOAD_FAILED" in incompatible.stderr, incompatible
-print("Godwit ABI smoke test passed (including SHA-256 and incompatible ABI rejection).")
+print(f"Godwit ABI smoke test passed ({len(requests)} concurrent calls, SHA-256 and incompatible ABI rejection).")

@@ -2,20 +2,11 @@ package main
 
 /*
 #include <stdlib.h>
-#include "bridge.h"
+#include "sdk/godwit_plugin.h"
 */
 import "C"
 
 import "unsafe"
-
-//export godwit_plugin_init
-func godwit_plugin_init(hostABI C.uint32_t, api *C.godwit_plugin_api) C.int {
-	if hostABI != C.GODWIT_PLUGIN_ABI || api == nil {
-		return -1
-	}
-	C.dlx_set_api(api)
-	return 0
-}
 
 //export dlx_call
 func dlx_call(method *C.char, req *C.uint8_t, size C.size_t, out *C.godwit_buffer) (rc C.int) {

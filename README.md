@@ -1,6 +1,8 @@
 # DLX plugin for Godwit
 
-独立的 Godwit 原生翻译插件，直接调用 [DLX](https://github.com/OwO-Network/DLX) 的翻译包，不启动 HTTP 服务，不要求用户部署服务器、配置接口地址或填写账号。
+为 Godwit 提供邮件与选中文本的多语言翻译，安装后即可使用，无需额外配置。
+
+这是一个独立的社区插件，使用 [DLX](https://github.com/OwO-Network/DLX) 的翻译能力。插件直接调用翻译包，不启动 HTTP 服务，无需部署服务器或填写账号。
 
 需要支持 [Godwit #68](https://github.com/godwit-email/godwit/pull/68) 原生插件 API 的版本。ABI 固定为 v1，接口来源提交 `0686d91f248302f085e799d13e990c2805348856`。DLX 依赖固定在 `0f2b50dd69fea3012d95a8d0e7a4ae8dca9ff5b2`，不会在运行时下载代码。
 
@@ -44,9 +46,9 @@ CI 在 macOS ARM64 / AMD64、Linux ARM64 / AMD64、Windows AMD64 原生 runner �
 
 ## 隐私与服务风险
 
-翻译内容会发送到 DeepL 的非官方接口。DLX 还会访问 DeepL 网站初始化 cookies，并访问 Apple 的公开 App Store 接口查询客户端版本。插件不提供自建中转、不记录翻译正文。
+翻译内容会发送至 DLX 使用的第三方翻译服务。DLX 还会访问相关网站初始化 cookies，并访问 Apple 的公开 App Store 接口查询客户端版本。插件不提供自建中转、不记录翻译正文。
 
-原生动态库在 Godwit 的子进程中运行，具有当前用户权限；子进程不是权限沙箱。可信名单和哈希授权由 Godwit 管理。DLX 模拟官方客户端，可能限流、封禁或随服务变更失效；本插件不是 DeepL 官方集成，也没有服务可用性保证。
+原生动态库在 Godwit 的子进程中运行，具有当前用户权限；子进程不是权限沙箱。可信名单和哈希授权由 Godwit 管理。DLX 使用非公开接口，可能限流、临时封禁或随上游变更失效。插件是社区扩展，服务可用性取决于上游。
 
 ## 许可
 

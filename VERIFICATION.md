@@ -13,4 +13,4 @@
 
 macOS Intel CI 曾在真实 Go 宿主加载时触发 `bad sweepgen in refill`。Go 的 Darwin AMD64 链接器固定使用 GS+0x30 保存 goroutine 指针，两份运行时直接复用宿主线程会读到对方的指针。ABI 初始化改为纯 C，该平台的 Go 回调改由独立 C 线程执行，不更改 API。宿主测试并发发起 40 个本地调用，覆盖此边界。
 
-跨平台结果见 GitHub Actions；工作流在五个平台构建并加载实际动态库。未提供 Windows ARM64 产物，未验证签名、公证后的桌面应用加载或长期稳态内存。服务使用非官方 DeepL 接口，可用性不保证。
+跨平台结果见 GitHub Actions；工作流在五个平台构建并加载实际动态库。未提供 Windows ARM64 产物，未验证签名、公证后的桌面应用加载或长期稳态内存。DLX 使用非公开接口，可用性取决于上游。

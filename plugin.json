@@ -2,8 +2,8 @@
   "name": "dlx",
   "version": "0.1.0",
   "description": {
-    "default": "Translate with DLX without deploying a server.",
-    "zh-CN": "通过 DLX 翻译，无需自行部署服务。"
+    "default": "Multilingual translation for emails and selected text. No configuration needed.",
+    "zh-CN": "翻译邮件与选中文本，支持多种语言，无需额外配置。"
   },
   "native": { "abi": 1 },
   "capabilities": ["translate"],

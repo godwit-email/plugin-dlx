@@ -108,4 +108,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          gh release create "$RELEASE_TAG" --draft --verify-tag --title "DLX $RELEASE_TAG" --notes 'Godwit ABI v1 native translation plugin. Unofficial DeepL endpoint; may be rate limited or stop working. See README for privacy and installation.' dist/*/dlx-* dist/SHA256SUMS dist/registry-release.json plugin.json LICENSE THIRD_PARTY_NOTICES
+          gh release create "$RELEASE_TAG" --draft --verify-tag --title "DLX $RELEASE_TAG" --notes 'Multilingual translation for emails and selected text in Godwit, powered by DLX. No configuration needed. Text is sent to a third-party translation service; availability depends on upstream. See README for privacy and installation.' dist/*/dlx-* dist/SHA256SUMS dist/registry-release.json plugin.json LICENSE THIRD_PARTY_NOTICES

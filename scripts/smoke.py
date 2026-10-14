@@ -27,26 +27,27 @@ requests = [
 ]
 if args.live:
     requests.append(("translate", {"texts": ["Hello, world!"], "source": "en", "target": "zh-CN"}, True))
-with subprocess.Popen([str(host), "--library", str(library), "--sha256", digest, "--abi", "1"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True) as proc:
-    for index, (method, params, ok) in enumerate(requests, 1):
-        proc.stdin.write(json.dumps({"id": index, "method": method, "params": params}) + "\n")
-        proc.stdin.flush()
-        line = proc.stdout.readline()
-        assert line, f"plugin-host stopped at {method}"
-        response = json.loads(line)
-        assert response.get("id") == index and response.get("ok") is ok, response
-        if method == "describe":
-            manifest = json.loads((root / "plugin.json").read_text())
-            assert response["result"] == {"name": manifest["name"], "version": manifest["version"], "abi": manifest["native"]["abi"], "capabilities": manifest["capabilities"]}, response
-        if method == "translate" and ok:
-            assert len(response["result"]["texts"]) == len(params["texts"]), response
-            if params["texts"][0] == "":
-                assert response["result"]["texts"] == params["texts"], response
-            else:
-                assert response["result"]["texts"][0] != params["texts"][0], response
-        print(json.dumps(response, ensure_ascii=False))
-    proc.stdin.close()
-    assert proc.wait(timeout=60) == 0
-denied = subprocess.run([str(host), "--library", str(library), "--sha256", "0" * 64], capture_output=True, text=True)
+payload = "".join(json.dumps({"id": index, "method": method, "params": params}) + "\n" for index, (method, params, _) in enumerate(requests, 1))
+proc = subprocess.run([str(host), "--library", str(library), "--sha256", digest, "--abi", "1"], input=payload, capture_output=True, text=True, timeout=90)
+assert proc.returncode == 0, proc.stderr
+if proc.stderr:
+    print(proc.stderr, file=sys.stderr)
+responses = sorted([json.loads(line) for line in proc.stdout.splitlines()], key=lambda item: item["id"])
+assert len(responses) == len(requests), proc.stdout
+for index, ((method, params, ok), response) in enumerate(zip(requests, responses), 1):
+    assert response.get("id") == index and response.get("ok") is ok, response
+    if method == "describe":
+        manifest = json.loads((root / "plugin.json").read_text(encoding="utf-8"))
+        assert response["result"] == {"name": manifest["name"], "version": manifest["version"], "abi": manifest["native"]["abi"], "capabilities": manifest["capabilities"]}, response
+    if method == "translate" and ok:
+        assert len(response["result"]["texts"]) == len(params["texts"]), response
+        if params["texts"][0] == "":
+            assert response["result"]["texts"] == params["texts"], response
+        else:
+            assert response["result"]["texts"][0] != params["texts"][0], response
+    print(json.dumps(response, ensure_ascii=False))
+denied = subprocess.run([str(host), "--library", str(library), "--sha256", "0" * 64], capture_output=True, text=True, timeout=30)
 assert denied.returncode == 3 and "DENIED_BEFORE_DLOPEN" in denied.stderr, denied
-print("Godwit ABI smoke test passed (including SHA-256 rejection).")
+incompatible = subprocess.run([str(host), "--library", str(library), "--sha256", digest, "--abi", "2"], capture_output=True, text=True, timeout=30)
+assert incompatible.returncode == 4 and "LOAD_FAILED" in incompatible.stderr, incompatible
+print("Godwit ABI smoke test passed (including SHA-256 and incompatible ABI rejection).")

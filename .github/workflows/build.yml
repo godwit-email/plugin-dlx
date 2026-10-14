@@ -27,6 +27,7 @@ jobs:
           - runner: windows-2025
             platform: windows-amd64
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
     defaults:
       run:
         shell: bash
@@ -41,6 +42,7 @@ jobs:
         with:
           python-version: '3.13'
       - uses: msys2/setup-msys2@v2
+        id: msys2
         if: runner.os == 'Windows'
         with:
           msystem: MINGW64
@@ -48,13 +50,16 @@ jobs:
           install: mingw-w64-x86_64-gcc
       - name: Windows C compiler
         if: runner.os == 'Windows'
-        run: echo 'C:/msys64/mingw64/bin' >> "$GITHUB_PATH"
+        shell: pwsh
+        env:
+          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
+        run: '"$env:MSYS2_LOCATION\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8'
       - name: Check tag and formatting
         env:
           RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
         run: |
           test -z "$(gofmt -l *.go tools/host/*.go)"
-          python -c 'import json,os; t=os.environ["RELEASE_TAG"]; v=json.load(open("plugin.json"))["version"]; assert not t or t == "v"+v, "tag must match plugin.json"'
+          python -c 'import json,os; t=os.environ["RELEASE_TAG"]; v=json.load(open("plugin.json", encoding="utf-8"))["version"]; assert not t or t == "v"+v, "tag must match plugin.json"'
       - run: go test -race ./...
         if: runner.os != 'Windows'
       - run: go test ./...

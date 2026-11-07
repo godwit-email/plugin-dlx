@@ -1,0 +1,50 @@
+{
+  "name": "dlx",
+  "releases": [
+    {
+      "version": "0.1.0",
+      "manifest": {
+        "name": "dlx",
+        "version": "0.1.0",
+        "description": {
+          "default": "Multilingual translation for emails and selected text. No configuration needed.",
+          "zh-CN": "翻译邮件与选中文本，支持多种语言，无需额外配置。"
+        },
+        "native": {
+          "abi": 1
+        },
+        "capabilities": [
+          "translate"
+        ],
+        "config": []
+      },
+      "artifacts": {
+        "darwin-amd64": {
+          "url": "https://github.com/godwit-email/plugin-dlx/releases/download/v0.1.0/dlx-darwin-amd64.dylib",
+          "sha256": "b91421a38a74b1653535a864726d8bd50fc7e60f309b5efbc3455e335204853c",
+          "size": 12165064
+        },
+        "darwin-arm64": {
+          "url": "https://github.com/godwit-email/plugin-dlx/releases/download/v0.1.0/dlx-darwin-arm64.dylib",
+          "sha256": "87517f0f093dec9f4c6e39d260306feaca1e7e94e8787e4d422e306a6addb412",
+          "size": 11354930
+        },
+        "linux-amd64": {
+          "url": "https://github.com/godwit-email/plugin-dlx/releases/download/v0.1.0/dlx-linux-amd64.so",
+          "sha256": "579aaa1c856cb6916ed439631da9a8204282b781e8f43759dd46ca754ded8b80",
+          "size": 13510688
+        },
+        "linux-arm64": {
+          "url": "https://github.com/godwit-email/plugin-dlx/releases/download/v0.1.0/dlx-linux-arm64.so",
+          "sha256": "8385994a3d47d848e81b7404f0c818dea86e22175d2c596d084eefd35e2d628e",
+          "size": 12609560
+        },
+        "windows-amd64": {
+          "url": "https://github.com/godwit-email/plugin-dlx/releases/download/v0.1.0/dlx-windows-amd64.dll",
+          "sha256": "c7c4890b318ab6854102a557d5d52d82d99f67e2c413885d11482b99483a1fde",
+          "size": 12401152
+        }
+      }
+    }
+  ]
+}
